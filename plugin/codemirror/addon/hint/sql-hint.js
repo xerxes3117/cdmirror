@@ -40,6 +40,14 @@
     //console.log("return in getdimmensions: " ,CodeMirror.resolveMode(mode).dimesions)
     return CodeMirror.resolveMode(mode).dimensions;
   }
+    
+    function getFunctions(editor) { /*change1*/
+    var mode = editor.doc.modeOption;
+    if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions"; /*change*/
+      //console.log(CodeMirror.resolveMode(mode))
+     // console.log(CodeMirror.resolveMode("text/dimensions"))
+    return CodeMirror.resolveMode(mode).functions; /*change to be done add functions instead of keywords here*/
+  }
 
   function getIdentifierQuote(editor) {
     var mode = editor.doc.modeOption;
@@ -259,6 +267,7 @@
     defaultTable = defaultTableName && getTable(defaultTableName);
     keywords = getKeywords(editor);
     dimensions = getDimensions(editor); /*change*/
+    functions = getFunctions(editor); /*change1*/
     identifierQuote = getIdentifierQuote(editor);
 
     if (defaultTableName && !defaultTable)
@@ -303,8 +312,11 @@
               return w;
           }
       );
-      if (!disableKeywords) /*change*/
-        addMatches(result, search, keywords, function(w) {return {text: w.toUpperCase() + "()", className: "CodeMirror-hint-keywords"};}); 
+      /*change1*/
+        addMatches(result, search, keywords, function(w) {return {text: w, className: "CodeMirror-hint-keywords"};}); 
+        
+        /*change1*/
+        addMatches(result, search, functions, function(w) {return {text: w.toUpperCase() + "()", className: "CodeMirror-hint-functions"};});
         
         if (1) /*change*/
         addMatches(result, search, dimensions, function(w) {return {text: w.toUpperCase(), className: "CodeMirror-hint-dimensions"};});

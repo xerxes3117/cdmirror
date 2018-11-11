@@ -3,12 +3,19 @@ $(document).ready(function () {
     var code = $(".codemirror-textarea")[0];
 
     var myDimensions = "variable1 variable2 variable3 variable4",
-        myFunctions = "max min count sum count_distinct avg";
+        myFunctions = "max min count sum count_distinct avg",
+        myKeywords = "if else elseif then",
+        /*change1*/
+        myOperators = "and or not"; /*change1*/
 
 
     CodeMirror.defineMode("dimensions", function (config, parserConfig) {
-        var functions = parserConfig.keywords || {},
-            dimensions = parserConfig.dimensions || {}
+        var functions = parserConfig.functions || {},
+            /*change1*/
+            dimensions = parserConfig.dimensions || {},
+            keywords = parserConfig.keywords || {},
+            /*change1*/
+            operators = parserConfig.operators || {} /*change1*/
 
         var dimensionOverlay = {
             token: function (stream, state) {
@@ -18,6 +25,8 @@ $(document).ready(function () {
                 if (functions.hasOwnProperty(word) && stream.peek() == "(") {
                     return "function"
                 };
+                if (keywords.hasOwnProperty(word)) return "keyword"; /*change1*/
+                if (operators.hasOwnProperty(word)) return "operator"; /*change1*/
                 if (dimensions.hasOwnProperty(word)) return "dimension";
                 stream.next();
                 return null;
@@ -30,8 +39,12 @@ $(document).ready(function () {
 
     CodeMirror.defineMIME("text/dimensions", {
         name: "dimensions",
-        keywords: set(myFunctions),
-        dimensions: set(myDimensions)
+        functions: set(myFunctions),
+        /*change1*/
+        keywords: set(myKeywords),
+        /*change1*/
+        dimensions: set(myDimensions),
+        operators: set(myOperators) /*change1*/
     });
 
     function set(str) {
@@ -59,6 +72,11 @@ $(document).ready(function () {
             cm.showHint({
                 completeSingle: false
             })
+            console.log(cm.cursorCoords())
+            var state = cm.getTokenAt(cm.getCursor()).state;
+            var inner = CodeMirror.innerMode(cm.getMode(), state);
+            console.log("state", state)
+            console.log("inner", inner)
         }
     });
 

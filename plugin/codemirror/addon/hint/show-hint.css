@@ -34,6 +34,10 @@
     font-size: 1vw;
 }
 
+.CodeMirror-hint-functions { /*change1*/
+    font-size: 1vw;
+}
+
 .CodeMirror-hint-dimensions {  /*change*/
     color: #ffffff;
     background-color: grey;
