@@ -126,6 +126,41 @@ $(document).ready(function () {
             });
             console.log("word inside cursoractivity: on closing bracket", editor.getRange(word.anchor, word.head))
         }
+        
+        //helper node adding    /*change 3*/
+        if(cm.state.helper) remove(cm.state.helper);/*change 3*/
+        
+        var helperContent = elt("span", null, elt("strong", null, "fn(parameter? parameterType) -> returnType"));
+        helperContent.appendChild(document.createTextNode(" - " + "This is the function description"));
+        helperContent.appendChild(document.createTextNode(" "));
+        helperContent.appendChild(elt("a", null, "[link]"));
+        
+        var where = cm.cursorCoords();/*change 3*/
+        var helper = cm.state.helper = makeTooltip(where.right + 1, where.bottom, helperContent);
     });
+
+      function remove(node) {/*change 3*/
+          var p = node && node.parentNode;
+          if (p) p.removeChild(node);
+      }
+
+    function makeTooltip(x, y, content) {/*change 3*/
+        var node = elt("div", "helper", content);
+        node.style.left = x + "px";
+        node.style.top = y + "px";
+        document.body.appendChild(node);
+        return node;
+    }
+        
+    function elt(tagname, cls /*, ... elts*/ ) {/*change 3*/
+        var e = document.createElement(tagname);
+        if (cls) e.className = cls;
+        for (var i = 2; i < arguments.length; ++i) {
+            var elt = arguments[i];
+            if (typeof elt == "string") elt = document.createTextNode(elt);
+            e.appendChild(elt);
+        }
+        return e;
+    }
 
 })
