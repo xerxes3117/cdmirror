@@ -33,7 +33,7 @@
     return CodeMirror.resolveMode(mode).keywords; /*change to be done add functions instead of keywords here*/
   }
     
-    function getDimensions(editor) { /*change*/
+  function getDimensions(editor) { /*change*/
     var mode = editor.doc.modeOption;
     if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions";
     //console.log("getdimensions: " ,CodeMirror.resolveMode("text/dimensions"))
@@ -41,7 +41,7 @@
     return CodeMirror.resolveMode(mode).dimensions;
   }
     
-    function getFunctions(editor) { /*change1*/
+  function getFunctions(editor) { /*change1*/
     var mode = editor.doc.modeOption;
     if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions"; /*change*/
       //console.log(CodeMirror.resolveMode(mode))
@@ -261,22 +261,22 @@
   }
 
   CodeMirror.registerHelper("hint", "sql", function(editor, options) {
-    tables = parseTables(options && options.tables)
-    var defaultTableName = options && options.defaultTable;
-    var disableKeywords = options && options.disableKeywords;
-    defaultTable = defaultTableName && getTable(defaultTableName);
+    //tables = parseTables(options && options.tables)
+    //var defaultTableName = options && options.defaultTable;
+    //var disableKeywords = options && options.disableKeywords;
+    //defaultTable = defaultTableName && getTable(defaultTableName);
     keywords = getKeywords(editor);
     dimensions = getDimensions(editor); /*change*/
     functions = getFunctions(editor); /*change1*/
-    identifierQuote = getIdentifierQuote(editor);
+    //identifierQuote = getIdentifierQuote(editor);
 
-    if (defaultTableName && !defaultTable)
-      defaultTable = findTableByAlias(defaultTableName, editor);
+    //if (defaultTableName && !defaultTable)
+      //defaultTable = findTableByAlias(defaultTableName, editor);
 
-    defaultTable = defaultTable || [];
+   // defaultTable = defaultTable || [];
 
-    if (defaultTable.columns)
-      defaultTable = defaultTable.columns;
+    //if (defaultTable.columns)
+     // defaultTable = defaultTable.columns;
 
     var cur = editor.getCursor();
     var result = [];
@@ -294,24 +294,25 @@
       start = end = cur.ch;
       search = "";
     }
-    if (search.charAt(0) == "." || search.charAt(0) == identifierQuote) {
-      start = nameCompletion(cur, token, result, editor);
-    } else {
-      addMatches(result, search, defaultTable, function(w) {return {text:w, className: "CodeMirror-hint-table CodeMirror-hint-default-table"};});
-      addMatches(
-          result,
-          search,
-          tables,
-          function(w) {
-              if (typeof w === 'object') {
-                  w.className =  "CodeMirror-hint-table";
-              } else {
-                  w = {text: w, className: "CodeMirror-hint-table"};
-              }
+    //if (search.charAt(0) == "." || search.charAt(0) == identifierQuote) {
+    //  start = nameCompletion(cur, token, result, editor);
+    //} 
+                          //  else {
+     // addMatches(result, search, defaultTable, function(w) {return {text:w, className: "CodeMirror-hint-table CodeMirror-hint-default-table"};});
+      //addMatches(
+     //     result,
+      //    search,
+      //    tables,
+      //    function(w) {
+      //        if (typeof w === 'object') {
+       //           w.className =  "CodeMirror-hint-table";
+      //        } else {
+       //           w = {text: w, className: "CodeMirror-hint-table"};
+      //        }
 
-              return w;
-          }
-      );
+      //        return w;
+      //    }
+    //  );
       /*change1*/
         addMatches(result, search, keywords, function(w) {return {text: w, className: "CodeMirror-hint-keywords"};}); 
         
@@ -320,7 +321,7 @@
         
         if (1) /*change*/
         addMatches(result, search, dimensions, function(w) {return {text: w.toUpperCase(), className: "CodeMirror-hint-dimensions"};});
-    }
+    
       
     return {list: result, from: Pos(cur.line, start), to: Pos(cur.line, end)};
   });

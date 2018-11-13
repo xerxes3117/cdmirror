@@ -70,13 +70,9 @@ $(document).ready(function () {
     editor.on("keyup", function (cm, event) {
         if (!cm.state.completionActive && event.keyCode != 13 && event.keyCode != 32) {
             cm.showHint({
-                completeSingle: false
+                completeSingle: false,
+                hint: getHints
             })
-            console.log(cm.cursorCoords())
-            var state = cm.getTokenAt(cm.getCursor()).state;
-            var inner = CodeMirror.innerMode(cm.getMode(), state);
-            console.log("state", state)
-            console.log("inner", inner)
         }
     });
 
@@ -90,6 +86,10 @@ $(document).ready(function () {
             editor.replaceSelection(" ")
             editor.setCursor(editor.getCursor().line, editor.getCursor().ch)
         }
+
+        console.log("number of lines", cm.lineCount())
+        console.log("line1", cm.getLineTokens(0));
+        console.log("line2", cm.getLineTokens(1));
     })
 
     editor.on('cursorActivity', function (cm, event) {
@@ -127,7 +127,12 @@ $(document).ready(function () {
             console.log("word inside cursoractivity: on closing bracket", editor.getRange(word.anchor, word.head))
         }
 
-        //helper node adding    /*change 3 add this change in another function*/
+        showHelperInfo(cm);
+
+    });
+
+    function showHelperInfo(cm) {
+        //helper node adding   
         if (cm.state.helper) remove(cm.state.helper);
 
         var helperContent = elt("span", null, elt("strong", null, "fn(parameter? parameterType) -> returnType"));
@@ -137,14 +142,14 @@ $(document).ready(function () {
 
         var where = cm.cursorCoords();
         var helper = cm.state.helper = makeTooltip(where.right + 1, where.bottom, helperContent);
-    });
+    }
 
-    function remove(node) { /*change 3*/
+    function remove(node) { 
         var p = node && node.parentNode;
         if (p) p.removeChild(node);
     }
 
-    function makeTooltip(x, y, content) { /*change 3*/
+    function makeTooltip(x, y, content) { 
         var node = elt("div", "helper", content);
         node.style.left = x + "px";
         node.style.top = y + "px";
@@ -152,7 +157,7 @@ $(document).ready(function () {
         return node;
     }
 
-    function elt(tagname, cls /*, ... elts*/ ) { /*change 3*/
+    function elt(tagname, cls /*, ... elts*/ ) { 
         var e = document.createElement(tagname);
         if (cls) e.className = cls;
         for (var i = 2; i < arguments.length; ++i) {
@@ -161,6 +166,133 @@ $(document).ready(function () {
             e.appendChild(elt);
         }
         return e;
+    }
+
+
+    function getHints() {
+
+        var functions;
+        var keywords;
+        var dimensions;
+        var Pos = CodeMirror.Pos;
+
+        keywords = getKeywords(editor);
+        dimensions = getDimensions(editor); 
+        functions = getFunctions(editor); 
+
+        var cur = editor.getCursor();
+        var result = [];
+        var token = editor.getTokenAt(cur),
+            start, end, search;
+        if (token.end > cur.ch) {
+            token.end = cur.ch;
+            token.string = token.string.slice(0, cur.ch - token.start);
+        }
+
+        if (token.string.match(/^[.`"\w@]\w*$/)) {
+            search = token.string;
+            start = token.start;
+            end = token.end;
+        } else {
+            start = end = cur.ch;
+            search = "";
+        }
+
+        addMatches(result, search, keywords, function (w) {
+            return {
+                text: w,
+                className: "CodeMirror-hint-keywords"
+            };
+        });
+
+        addMatches(result, search, functions, function (w) {
+            return {
+                text: w.toUpperCase() + "()",
+                className: "CodeMirror-hint-functions"
+            };
+        });
+
+        addMatches(result, search, dimensions, function (w) {
+            return {
+                text: w.toUpperCase(),
+                className: "CodeMirror-hint-dimensions"
+            };
+        });
+
+        var obj = {
+            list: result,
+            from: Pos(cur.line, start),
+            to: Pos(cur.line, end)
+        };
+
+        var tooltip = null;
+        CodeMirror.on(obj, "close", function () {
+            remove(tooltip);
+        });
+        CodeMirror.on(obj, "update", function () {
+            remove(tooltip);
+        });
+        CodeMirror.on(obj, "select", function (cur, node) {
+            console.log("item selected");
+            remove(tooltip);
+            tooltip = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+                node.getBoundingClientRect().top + window.pageYOffset, "here's a side description for each list item");
+            tooltip.className += " " + "hint-doc";
+        });
+
+        return obj;
+    }
+
+    function isArray(val) {
+        return Object.prototype.toString.call(val) == "[object Array]"
+    }
+
+    function getKeywords(editor) {
+        var mode = editor.doc.modeOption;
+        if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions"; 
+        return CodeMirror.resolveMode(mode).keywords; 
+    }
+
+    function getDimensions(editor) { /*change*/
+        var mode = editor.doc.modeOption;
+        if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions";
+        return CodeMirror.resolveMode(mode).dimensions;
+    }
+
+    function getFunctions(editor) { /*change1*/
+        var mode = editor.doc.modeOption;
+        if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions"; 
+        return CodeMirror.resolveMode(mode).functions; 
+    }
+
+    function getText(item) {
+        return typeof item == "string" ? item : item.text;
+    }
+
+    function match(string, word) {
+        var len = string.length;
+        var sub = getText(word).substr(0, len);
+        return string.toUpperCase() === sub.toUpperCase();
+    }
+
+    function addMatches(result, search, wordlist, formatter) { 
+        if (isArray(wordlist)) {
+            for (var i = 0; i < wordlist.length; i++)
+                if (match(search, wordlist[i])) result.push(formatter(wordlist[i]))
+        } else {
+            for (var word in wordlist)
+                if (wordlist.hasOwnProperty(word)) {
+                    var val = wordlist[word]
+                    if (!val || val === true)
+                        val = word
+                    else
+                        val = val.displayText ? {
+                            text: val.text,
+                            displayText: val.displayText
+                        } : val.text
+                    if (match(search, val)) result.push(formatter(val))
+                }
+        }
     }
 
 })

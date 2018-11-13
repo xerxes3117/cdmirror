@@ -102,9 +102,7 @@
       if (found && found.changed) sendDoc(this, found);
     },
 
-    complete: function(cm) {
-      cm.showHint({hint: this.getHint});
-    },
+    complete: function(cm) {cm.showHint({hint: this.getHint})},
 
     showType: function(cm, pos, c) { showContextInfo(this, cm, pos, "type", c); },
 
@@ -232,7 +230,7 @@
         if (content) {
           tooltip = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
                                 node.getBoundingClientRect().top + window.pageYOffset, content);
-          tooltip.className += " " + cls + "hint-doc";
+          tooltip.className += " " + "hint-doc";
         }
       });
       c(obj);
