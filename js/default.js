@@ -5,17 +5,14 @@ $(document).ready(function () {
     var myDimensions = "variable1 variable2 variable3 variable4",
         myFunctions = "max min count sum count_distinct avg",
         myKeywords = "if else elseif then",
-        /*change1*/
-        myOperators = "and or not"; /*change1*/
+        myOperators = "and or not"; 
 
 
     CodeMirror.defineMode("dimensions", function (config, parserConfig) {
         var functions = parserConfig.functions || {},
-            /*change1*/
             dimensions = parserConfig.dimensions || {},
             keywords = parserConfig.keywords || {},
-            /*change1*/
-            operators = parserConfig.operators || {} /*change1*/
+            operators = parserConfig.operators || {} 
 
         var dimensionOverlay = {
             token: function (stream, state) {
@@ -25,8 +22,8 @@ $(document).ready(function () {
                 if (functions.hasOwnProperty(word) && stream.peek() == "(") {
                     return "function"
                 };
-                if (keywords.hasOwnProperty(word)) return "keyword"; /*change1*/
-                if (operators.hasOwnProperty(word)) return "operator"; /*change1*/
+                if (keywords.hasOwnProperty(word)) return "keyword"; 
+                if (operators.hasOwnProperty(word)) return "operator"; 
                 if (dimensions.hasOwnProperty(word)) return "dimension";
                 stream.next();
                 return null;
@@ -39,12 +36,11 @@ $(document).ready(function () {
 
     CodeMirror.defineMIME("text/dimensions", {
         name: "dimensions",
-        functions: set(myFunctions),
+        functions: set(myFunctions), 
         /*change1*/
-        keywords: set(myKeywords),
-        /*change1*/
+        keywords: set(myKeywords), 
         dimensions: set(myDimensions),
-        operators: set(myOperators) /*change1*/
+        operators: set(myOperators) 
     });
 
     function set(str) {
@@ -253,13 +249,13 @@ $(document).ready(function () {
         return CodeMirror.resolveMode(mode).keywords; 
     }
 
-    function getDimensions(editor) { /*change*/
+    function getDimensions(editor) { 
         var mode = editor.doc.modeOption;
         if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions";
         return CodeMirror.resolveMode(mode).dimensions;
     }
 
-    function getFunctions(editor) { /*change1*/
+    function getFunctions(editor) { 
         var mode = editor.doc.modeOption;
         if (mode === "sql" || mode === "text/dimensions") mode = "text/dimensions"; 
         return CodeMirror.resolveMode(mode).functions; 
