@@ -9,7 +9,7 @@ $(document).ready(function () {
         myOperators = "And or not";
     var i = 0;
 
-    var myDimensions2 = ["Variable1", "Variable 1", "variable2", "Variable3", "variable4", "FIRST NAME", "Sales", "sales in"];
+    var myDimensions2 = ["Variable1", "variable2", "Variable3", "variable4", "Sales in K"];
     
     var myDimensions3 = {};
     
@@ -91,6 +91,7 @@ $(document).ready(function () {
             cm.showHint({
                 completeSingle: false,
                 hint: getHints,
+                completeSingle: false,
                 closeCharacters: /$./
             })
         }
@@ -107,11 +108,9 @@ $(document).ready(function () {
             //editor.setCursor(editor.getCursor().line, editor.getCursor().ch)
         }
 
-        console.log(editor.indexFromPos(editor.getCursor()))
         myDimensions2.forEach(da => {
-            var cursor = editor.getSearchCursor(da, undefined, {
-                caseFold: true
-            });
+            var cursor = editor.getSearchCursor(da,undefined,{caseFold: true});
+            //console.log(cursor.findNext(), cursor.from(), cursor.to());
          
             while (cursor.findNext()) {
                 //console.log(da);
@@ -122,7 +121,7 @@ $(document).ready(function () {
                     replacedWith: g,
                     atomic: true
                 }
-                editor.markText(cursor.from(), cursor.to(), d)
+                if (cursor.from()) editor.markText(cursor.from(), cursor.to(), d)
             }
 
         })
@@ -229,7 +228,7 @@ $(document).ready(function () {
         var result = [];
         var token = editor.getTokenAt(cur),
             start, end, search;
-        //console.log(token)
+        console.log(token)
         if (token.end > cur.ch) {
             token.end = cur.ch;
             token.string = token.string.slice(0, cur.ch - token.start);
@@ -285,8 +284,6 @@ $(document).ready(function () {
                 node.getBoundingClientRect().top + window.pageYOffset, "here's a side description for each list item");
             tooltip.className += " " + "hint-doc";
         });
-        
-        //console.log(obj)
 
         return obj;
     }

@@ -21,3 +21,13 @@
   -o-transition: opacity 1s;
   -ms-transition: opacity 1s;
 }
+
+.cm-s-default .cm-dimension  {
+    font-size: 3vw;
+    color: black
+}
+
+.cm-markText  {
+    background-color: darkkhaki;
+    padding: 0 5px
+}

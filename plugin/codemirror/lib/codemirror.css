@@ -134,10 +134,6 @@
 .cm-s-default .cm-builtin {} /*change*/
 .cm-s-default .cm-dimension {    /*change*/
     color: #ffffff;
-    background-color: grey;
-    font-size: 1.2vw;
-    border-radius: 0.5vw;
-    padding: 0.3vw;
 }
 .cm-s-default .cm-function {    /*change*/
     color: red;       
